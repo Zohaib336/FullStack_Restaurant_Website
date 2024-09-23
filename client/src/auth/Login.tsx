@@ -1,22 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { LoginInputState, userLoginSchema } from "@/schema/userSchema";
 import { Loader2, LockKeyhole, Mail } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-
-// There are two methods of define type in typescript
-
-type LoginInputState = {
-    email: string;
-    password: string;
-}
 
 const Login = () => {
     const [input, setInput] = useState<LoginInputState>({
         email: "",
         password: "",
     });
+
+    const [errors, setErrors] = useState<Partial<LoginInputState>>({});
 
     const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -25,6 +21,12 @@ const Login = () => {
 
     const loginSubmitHandler = async (e: FormEvent) => {
         e.preventDefault();
+        const result = userLoginSchema.safeParse(input);
+        if (!result.success) {
+            const fieldErrors = result.error.formErrors.fieldErrors;
+            setErrors(fieldErrors as Partial<LoginInputState>);
+            return;
+        }
         console.log(input);
     }
 
@@ -41,13 +43,14 @@ const Login = () => {
                     <div className="relative">
                         <Input
                             type="email"
-                            placeholder="Email"
+                            placeholder="Enter your name"
                             name="email"
                             value={input.email}
                             onChange={changeEventHandler}
                             className="pl-10 focus-visible:ring-1"
                         />
                         <Mail className="absolute inset-y-2 left-2 text-gray-500 pointer-events-none" />
+                        {errors && <span className="text-xs text-red-500">{errors.email}</span>}
                     </div>
                 </div>
 
@@ -55,13 +58,14 @@ const Login = () => {
                     <div className="relative">
                         <Input
                             type="password"
-                            placeholder="Password"
+                            placeholder="Enter your password"
                             name="password"
                             value={input.password}
                             onChange={changeEventHandler}
                             className="pl-10 focus-visible:ring-1"
                         />
                         <LockKeyhole className="absolute inset-y-2 left-2 text-gray-500 pointer-events-none" />
+                        {errors && <span className="text-xs text-red-500">{errors.password}</span>}
                     </div>
                 </div>
                 <div className="mb-10">
