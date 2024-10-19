@@ -5,6 +5,8 @@ import crypto from "crypto";
 import { Date } from "mongoose";
 import cloudinary from "../utils/cloudinary";
 import mongoose from "mongoose";
+import { generateVerificationCode } from "../utils/generateVerificationCode";
+import { generateToken } from "../utils/generateToken";
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -17,7 +19,7 @@ export const signup = async (req: Request, res: Response) => {
             })
         }
         const hashedPassword = await bcrypt.hash(password, 13)
-        const verificationToken = "token";
+        const verificationToken = generateVerificationCode();
         user = await User.create({
             fullname,
             email,
@@ -26,7 +28,7 @@ export const signup = async (req: Request, res: Response) => {
             verificationToken,
             verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
         })
-        // generateToken(res,user)
+        generateToken(res, user)
         // await sendVerificationEmail( email, verificationToken);
         const userWithoutPassword = await User.findOne({ email }).select("-password")
         return res.status(201).json({
