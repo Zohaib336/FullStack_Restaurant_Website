@@ -2,11 +2,10 @@ import { Request, Response } from "express";
 import { User } from "../models/user.model";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { Date } from "mongoose";
 import cloudinary from "../utils/cloudinary";
-import mongoose from "mongoose";
 import { generateVerificationCode } from "../utils/generateVerificationCode";
 import { generateToken } from "../utils/generateToken";
+import { sendPasswordResetEmail, sendResetSuccessEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/email";
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -29,7 +28,7 @@ export const signup = async (req: Request, res: Response) => {
             verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
         })
         generateToken(res, user)
-        // await sendVerificationEmail( email, verificationToken);
+        await sendVerificationEmail(email, verificationToken);
         const userWithoutPassword = await User.findOne({ email }).select("-password")
         return res.status(201).json({
             success: true,
@@ -60,7 +59,7 @@ export const login = async (req: Request, res: Response) => {
                 message: "Incorrect email or password"
             })
         }
-        // generateToken(res, user)
+        generateToken(res, user);
         user.lastLogin = new Date();
         await user.save();
         // send user without password
@@ -93,7 +92,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
         user.verificationTokenExpiresAt = undefined;
         await user.save();
         // Send welcome email
-        // await sendWelcomeEmail(user.email, user.fullname);
+        await sendWelcomeEmail(user.email, user.fullname);
         return res.status(200).json({
             success: true,
             message: "Email verified successfully",
@@ -139,7 +138,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         user.resetPasswordTokenExpiresAt = resetTokenExpiresAt;
         await user.save();
         // Send email
-        // await sendPasswordResetEmail(user.email, `${process.env.FRONTEND_URL}/resetpassword/${token}`);
+        await sendPasswordResetEmail(user.email, `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`);
         return res.status(200).json({
             success: true,
             message: "Reset password link sent to your email"
@@ -167,7 +166,7 @@ export const resetPassword = async (req: Request, res: Response) => {
         user.resetPasswordTokenExpiresAt = undefined;
         await user.save();
         // Send success reset email
-        // await sendResetSuccessEmail(user.email);
+        await sendResetSuccessEmail(user.email);
 
         return res.status(200).json({
             success: true,
