@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { userSignupSchema } from "@/schema/userSchema";
+import { useUserStore } from "@/store/useUserStore";
 import { Loader2, LockKeyhole, Mail, PhoneIcon, User } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
@@ -24,6 +25,7 @@ const Signup = () => {
     });
 
     const [errors, setErrors] = useState<Partial<SignupInputState>>({});
+    const { signup, loading } = useUserStore();
 
     const changeEventHandler = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -41,14 +43,8 @@ const Signup = () => {
         }
         console.log(input);
         // login api implementation start here
-        // try {
-        //     await signup(input);
-        //     navigate("/verify-email");
-        // } catch (error) {
-        //     console.log(error);
-        // }
+        await signup(input);
     }
-    const loading = false;
 
     return (
         <div className="flex items-center justify-center min-h-screen">
