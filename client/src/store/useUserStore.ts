@@ -104,7 +104,7 @@ export const useUserStore = create<UserState>()(persist((set) => ({
                 set({ user: response.data.user, isAuthenticated: true, isCheckingAuth: false });
             }
         } catch (error) {
-            set({ loading: false, isAuthenticated: false, isCheckingAuth: false });
+            set({ isAuthenticated: false, isCheckingAuth: false });
         }
     },
     // logout api implementation
