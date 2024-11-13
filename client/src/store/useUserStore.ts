@@ -152,7 +152,6 @@ export const useUserStore = create<UserState>()(persist((set) => ({
     // updateProfile api implementation
     updateProfile: async (input: any) => {
         try {
-            set({ loading: true });
             const response = await axios.put(`${API_END_POINT}/profile/update`, input, {
                 headers: {
                     'Content-Type': 'application/json'
@@ -160,11 +159,9 @@ export const useUserStore = create<UserState>()(persist((set) => ({
             });
             if (response.data.success) {
                 toast.success(response.data.message);
-                set({ loading: false, user: response.data.user, isAuthenticated: true });
+                set({ user: response.data.user, isAuthenticated: true });
             }
-        } catch (error: any) {
-            set({ loading: false });
-            toast.error(error.response.data.message);
+        } catch (error) {
         }
     }
 }),
