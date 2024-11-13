@@ -1,60 +1,64 @@
 import { Minus, Plus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "./ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "./ui/table";
 import { useState } from "react";
 import CheckoutConfirmPage from "./CheckoutConfirmPage";
+import { useCartStore } from "@/store/useCartStore";
+import { CartItem } from "@/types/cartType";
 
 const Cart = () => {
     const [open, setOpen] = useState<boolean>(false);
+    const { cart, decrementQuantity, incrementQuantity } = useCartStore();
 
+    let totalAmount = cart.reduce((acc, ele) => {
+        return acc + ele.price * ele.quantity;
+    }, 0);
     return (
-        <div className="flex flex-col max-w-7xl mx-auto my-10 px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-end mb-4">
+        <div className="flex flex-col max-w-7xl mx-auto my-10">
+            <div className="flex justify-end">
                 <Button variant="link">Clear All</Button>
             </div>
-            <div className="overflow-x-auto">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[10%] sm:w-[15%] lg:w-[10%]">Item</TableHead>
-                            <TableHead className="w-[25%] sm:w-[30%] lg:w-[25%]">Title</TableHead>
-                            <TableHead className="w-[15%] text-center">Price</TableHead>
-                            <TableHead className="w-[20%] text-center">Quantity</TableHead>
-                            <TableHead className="w-[15%] text-center">Total</TableHead>
-                            <TableHead className="text-right w-[15%]">Remove</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Items</TableHead>
+                        <TableHead>Title</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead>Total</TableHead>
+                        <TableHead className="text-right">Remove</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {cart.map((item: CartItem) => (
                         <TableRow>
                             <TableCell>
                                 <Avatar>
-                                    <AvatarImage src="" alt="" />
+                                    <AvatarImage src={item.image} alt="" />
                                     <AvatarFallback>CN</AvatarFallback>
                                 </Avatar>
                             </TableCell>
-                            <TableCell className="text-left">
-                                Mutton Biryani
-                            </TableCell>
-                            <TableCell className="text-center">399</TableCell>
-                            <TableCell className="text-center">
-                                <div className="flex justify-center items-center space-x-2 rounded-full border border-gray-100 dark:border-gray-800 shadow-md p-1">
+                            <TableCell> {item.name}</TableCell>
+                            <TableCell> {item.price}</TableCell>
+                            <TableCell>
+                                <div className="w-fit flex items-center rounded-full border border-gray-100 dark:border-gray-800 shadow-md">
                                     <Button
+                                        onClick={() => decrementQuantity(item._id)}
                                         size={"icon"}
                                         variant={"outline"}
                                         className="rounded-full bg-gray-200">
                                         <Minus />
                                     </Button>
-                                    <span className="font-bold px-4">1</span>
                                     <Button
+                                        size={"icon"}
+                                        className="font-bold border-none"
+                                        disabled
+                                        variant={"outline"}>
+                                        {item.quantity}
+                                    </Button>
+                                    <Button
+                                        onClick={() => incrementQuantity(item._id)}
                                         size={"icon"}
                                         className="rounded-full bg-orange hover:bg-hoverOrange"
                                         variant={"outline"}>
@@ -62,22 +66,22 @@ const Cart = () => {
                                     </Button>
                                 </div>
                             </TableCell>
-                            <TableCell className="text-center">₹399</TableCell>
+                            <TableCell>{item.price * item.quantity}</TableCell>
                             <TableCell className="text-right">
                                 <Button size={"sm"} className="bg-orange hover:bg-hoverOrange">
                                     Remove
                                 </Button>
                             </TableCell>
                         </TableRow>
-                    </TableBody>
-                    <TableFooter>
-                        <TableRow className="text-2xl font-bold">
-                            <TableCell colSpan={5}>Total</TableCell>
-                            <TableCell className="text-right">399</TableCell>
-                        </TableRow>
-                    </TableFooter>
-                </Table>
-            </div>
+                    ))}
+                </TableBody>
+                <TableFooter>
+                    <TableRow className="text-2xl font-bold">
+                        <TableCell colSpan={5}>Total</TableCell>
+                        <TableCell className="text-right">{totalAmount}</TableCell>
+                    </TableRow>
+                </TableFooter>
+            </Table>
             <div className="flex justify-end my-5">
                 <Button
                     onClick={() => setOpen(true)}

@@ -8,10 +8,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTrigger } from "./ui/sheet";
 import { Separator } from "./ui/separator";
 import { useUserStore } from "@/store/useUserStore";
+import { useCartStore } from "@/store/useCartStore";
 
 
 const Navbar = () => {
     const { user, loading, logout } = useUserStore();
+    const { cart } = useCartStore();
 
     return (
         <div className="max-w-7xl mx-auto">
@@ -63,14 +65,17 @@ const Navbar = () => {
                         </div>
                         <Link to="/cart" className="relative cursor-pointer">
                             <ShoppingCart />
-                            <Button
-                                size={"icon"}
-                                className="absolute -inset-y-3 left-2 text-xs rounded-full w-4 h-4 bg-red-500 hover:bg-red-500">7
-                            </Button>
+                            {cart.length > 0 && (
+                                <Button
+                                    size={"icon"}
+                                    className="absolute -inset-y-3 left-2 text-xs rounded-full w-4 h-4 bg-red-500 hover:bg-red-500">
+                                    {cart.length}
+                                </Button>
+                            )}
                         </Link>
                         <div>
                             <Avatar>
-                                <AvatarImage />
+                                <AvatarImage src={user?.profilePicture} alt="profilephoto" />
                                 <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                         </div>
@@ -178,7 +183,7 @@ const MobileNavbar = () => {
                 <SheetFooter className="flex flex-col gap-4">
                     <div className="flex flex-row items-center gap-2">
                         <Avatar>
-                            <AvatarImage />
+                            <AvatarImage src={user?.profilePicture} alt="profilephoto" />
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
                         <h1 className="font-bold">BiteMate</h1>
