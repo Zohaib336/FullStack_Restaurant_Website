@@ -9,11 +9,13 @@ import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHe
 import { Separator } from "./ui/separator";
 import { useUserStore } from "@/store/useUserStore";
 import { useCartStore } from "@/store/useCartStore";
+import { useThemeStore } from "@/store/useThemeStore";
 
 
 const Navbar = () => {
     const { user, loading, logout } = useUserStore();
     const { cart } = useCartStore();
+    const { setTheme } = useThemeStore();
 
     return (
         <div className="max-w-7xl mx-auto">
@@ -58,8 +60,8 @@ const Navbar = () => {
                                     </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem>Light</DropdownMenuItem>
-                                    <DropdownMenuItem>Dark</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -86,7 +88,9 @@ const Navbar = () => {
                                     Please wait
                                 </Button>
                             ) : (
-                                <Button onClick={logout} className="bg-orange hover:bg-hoverOrange">
+                                <Button
+                                    onClick={logout}
+                                    className="bg-orange hover:bg-hoverOrange">
                                     Logout
                                 </Button>
                             )}
@@ -106,6 +110,7 @@ export default Navbar;
 
 const MobileNavbar = () => {
     const { user, logout, loading } = useUserStore();
+    const { setTheme } = useThemeStore();
     return (
 
         <Sheet>
@@ -129,8 +134,8 @@ const MobileNavbar = () => {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuItem>Light</DropdownMenuItem>
-                            <DropdownMenuItem>Dark</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </SheetHeader>
@@ -152,7 +157,7 @@ const MobileNavbar = () => {
                         to="/cart"
                         className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium">
                         <ShoppingCart />
-                        <span>Cart (7)</span>
+                        <span>Cart (0)</span>
                     </Link>
                     {
                         user?.admin && (
@@ -195,7 +200,8 @@ const MobileNavbar = () => {
                                 Please wait
                             </Button>
                         ) : (
-                            <Button onClick={logout} className="bg-orange hover:bg-hoverOrange">
+                            <Button onClick={logout}
+                                className="bg-orange hover:bg-hoverOrange">
                                 Logout
                             </Button>
                         )}
