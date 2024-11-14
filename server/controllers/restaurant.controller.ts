@@ -154,6 +154,8 @@ export const searchRestaurant = async (req: Request, res: Response) => {
         const selectedCuisines = (req.query.selectedCuisines as string || "").split(",").filter(cuisine => cuisine);
         const query: any = {};
         // Filter on the basis of name, city, country
+        console.log(selectedCuisines);
+
         if (searchText) {
             query.$or = [
                 { restaurantName: { $regex: searchText, $options: 'i' } },
@@ -172,6 +174,7 @@ export const searchRestaurant = async (req: Request, res: Response) => {
         if (selectedCuisines.length > 0) {
             query.cuisines = { $in: selectedCuisines }
         }
+
         const restaurants = await Restaurant.find(query);
         return res.status(200).json({
             success: true,

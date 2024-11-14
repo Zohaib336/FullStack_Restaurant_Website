@@ -1,3 +1,4 @@
+import { Orders } from "@/types/orderType";
 import { MenuItem, RestaurantState } from "@/types/restaurantType";
 import axios from "axios";
 import { toast } from "sonner";
@@ -7,12 +8,13 @@ import { createJSONStorage, persist } from "zustand/middleware";
 const API_END_POINT = "http://localhost:8000/api/v1/restaurant";
 axios.defaults.withCredentials = true;
 
-export const useRestaurantStore = create<RestaurantState>()(persist((set) => ({
+export const useRestaurantStore = create<RestaurantState>()(persist((set, get) => ({
     loading: false,
     restaurant: null,
     searchedRestaurant: null,
     appliedFilter: [],
     singleRestaurant: null,
+    restaurantOrder: [],
 
     createRestaurant: async (formData: FormData) => {
         try {
@@ -65,13 +67,12 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set) => ({
     searchRestaurant: async (searchText: string, searchQuery: string, selectedCuisines: any) => {
         try {
             set({ loading: true });
+
             const params = new URLSearchParams();
             params.set("searchQuery", searchQuery);
             params.set("selectedCuisines", selectedCuisines.join(","));
-
             // For skeleton
             // await new Promise((resolve) => setTimeout(resolve, 2000));
-
             const response = await axios.get(`${API_END_POINT}/search/${searchText}?${params.toString()}`);
             if (response.data.success) {
                 set({ loading: false, searchedRestaurant: response.data });
@@ -87,6 +88,7 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set) => ({
     },
     updateMenuToRestaurant: (updatedMenu: MenuItem) => {
         set((state: any) => {
+
             if (state.restaurant) {
                 const updatedMenuList = state.restaurant.menus.map((menu: any) => menu._id === updatedMenu._id ? updatedMenu : menu);
                 return {
@@ -118,10 +120,36 @@ export const useRestaurantStore = create<RestaurantState>()(persist((set) => ({
             }
         } catch (error) { }
     },
-}),
-    {
-        name: "restaurant-name",
-        storage: createJSONStorage(() => localStorage)
+    getRestaurantOrders: async () => {
+        try {
+            const response = await axios.get(`${API_END_POINT}/order`);
+            if (response.data.success) {
+                set({ restaurantOrder: response.data.orders });
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    },
+    updateRestaurantOrder: async (orderId: string, status: string) => {
+        try {
+            const response = await axios.put(`${API_END_POINT}/order/${orderId}/status`, { status }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.data.success) {
+                const updatedOrder = get().restaurantOrder.map((order: Orders) => {
+                    return order._id === orderId ? { ...order, status: response.data.status } : order;
+                })
+                set({ restaurantOrder: updatedOrder });
+                toast.success(response.data.message);
+            }
+        } catch (error: any) {
+            toast.error(error.response.data.message);
+        }
     }
-)
-);
+
+}), {
+    name: 'restaurant-name',
+    storage: createJSONStorage(() => localStorage)
+}))

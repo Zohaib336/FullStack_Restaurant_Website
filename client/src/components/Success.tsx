@@ -2,9 +2,16 @@ import { IndianRupee } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
+import { useOrderStore } from "@/store/useOrderStore";
+import { useEffect } from "react";
+import { CartItem } from "@/types/cartType";
 
 const Success = () => {
-    const orders = [1, 2, 3, 4]
+    const { orders, getOrderDetails } = useOrderStore();
+
+    useEffect(() => {
+        getOrderDetails();
+    }, []);
 
     if (orders.length === 0)
         return (
@@ -29,30 +36,33 @@ const Success = () => {
                         Order Summary
                     </h2>
                     {/* Your Ordered Item Display here  */}
-                    <div>
-
-                        <div className="mb-4">
-                            <div className="flex justify-between items-center">
-                                <div className="flex items-center">
-                                    <img
-                                        src="https://media.istockphoto.com/id/1367297749/photo/homemade-beef-biryani.jpg?s=2048x2048&w=is&k=20&c=qbQtLHv0-e0uI2WBecr96dMO9_fm_C1v9LNGAuZmYnQ="
-                                        alt="dish"
-                                        className="w-14 h-14 rounded-md object-cover"
-                                    />
-                                    <h3 className="ml-4 text-gray-800 dark:text-gray-200 font-medium">
-                                        Mutton Biryani
-                                    </h3>
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-gray-800 dark:text-gray-200 flex items-center">
-                                        <IndianRupee />
-                                        <span className="text-lg font-medium">399</span>
+                    {orders.map((order: any, index: number) => (
+                        <div key={index}>
+                            {order.cartItems.map((item: CartItem) => (
+                                <div className="mb-4">
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center">
+                                            <img
+                                                src={item.image}
+                                                alt=""
+                                                className="w-14 h-14 rounded-md object-cover"
+                                            />
+                                            <h3 className="ml-4 text-gray-800 dark:text-gray-200 font-medium">
+                                                {item.name}
+                                            </h3>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-gray-800 dark:text-gray-200 flex items-center">
+                                                <IndianRupee />
+                                                <span className="text-lg font-medium">{item.price}</span>
+                                            </div>
+                                        </div>
                                     </div>
+                                    <Separator className="my-4" />
                                 </div>
-                            </div>
-                            <Separator className="my-4" />
+                            ))}
                         </div>
-                    </div>
+                    ))}
                 </div>
                 <Link to="/cart">
                     <Button className="bg-orange hover:bg-hoverOrange w-full py-3 rounded-md shadow-lg">
